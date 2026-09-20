@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+@theme {
+  --color-aer-black: #0A0A0A;
+  --color-aer-charcoal: #101010;
+  --color-aer-cream: #FAF8F5;
+  --color-aer-blue: #40E0D0;
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-sans: 'Inter', sans-serif;
+}
+
+html { background: #071314; }
+body {
+  background:
+    radial-gradient(ellipse at 86% 72%, rgba(36, 145, 148, 0.38) 0%, transparent 42%),
+    radial-gradient(ellipse at 64% 52%, rgba(10, 74, 78, 0.26) 0%, transparent 46%),
+    linear-gradient(135deg, #020808 0%, #061617 48%, #0a3a3c 100%);
+  background-attachment: fixed;
+  color: var(--color-aer-cream);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.font-editorial { font-family: var(--font-serif); }
+button, a, input, textarea { -webkit-tap-highlight-color: transparent; }
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 1px solid var(--color-aer-blue); outline-offset: 4px; }
+input::placeholder { opacity: 1; }
+
+#top { isolation: isolate; }
+#top > section:first-of-type { isolation: isolate; }
+#top > section:first-of-type .landing-particles { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; opacity: 0.7; }
+#top > section:first-of-type > .relative { position: relative; z-index: 2; }
+#top > section:first-of-type > div.absolute:not(:first-of-type) { display: none !important; }
+#top > section:first-of-type > .relative > .grid > div:first-child > div:first-child,
+#top > section:first-of-type > .relative > .grid > div:last-child,
+#top > section:first-of-type > .relative > .mt-16 { display: none !important; }
+#top > section:first-of-type a[href="#work"] {
+  border-color: rgba(255,255,255,.12) !important;
+  background: rgba(7,16,17,.42) !important;
+  color: rgba(250,248,245,.88) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter: blur(18px) saturate(125%);
+  -webkit-backdrop-filter: blur(18px) saturate(125%);
+  transition: border-color 280ms ease, background-color 280ms ease, color 280ms ease, transform 280ms ease, box-shadow 280ms ease;
+}
+#top > section:first-of-type a[href="#work"]:hover { border-color: rgba(64,224,208,.42) !important; background: rgba(64,224,208,.10) !important; color: #FAF8F5 !important; box-shadow: 0 14px 36px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08); transform: translateY(-1px); }
+
+#top > section { position: relative; border-top-color: transparent !important; border-right-color: transparent !important; border-bottom-color: transparent !important; border-left-color: transparent !important; }
+#top > section + section::before { content: ""; position: absolute; top: -96px; left: -3%; width: 106%; height: 112px; pointer-events: none; z-index: 0; background: radial-gradient(ellipse at 50% 55%, rgba(36,145,148,.11) 0%, rgba(7,19,20,.22) 32%, transparent 72%), linear-gradient(to bottom, transparent 0%, rgba(7,19,20,.18) 48%, transparent 100%); filter: blur(14px); opacity: .9; }
+#top > section + section::after { content: ""; position: absolute; top: -42px; left: 0; right: 0; height: 84px; pointer-events: none; z-index: 0; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); mask-image: linear-gradient(to bottom, transparent 0%, black 38%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 38%, transparent 100%); }
+#top > section > * { position: relative; z-index: 1; }
+#top > section:first-of-type .border-t, #top > section:first-of-type .border-b, #top > section:first-of-type .border-l { border-color: transparent !important; }
+
+/* Landing-only treatments (moved from App.tsx arbitrary variants so admin is never affected — admin has no #main-content ancestor). */
+#main-content > div:first-of-type { background: transparent !important; }
+#main-content > div:first-of-type > div:first-child { display: none !important; }
+#top section { background: transparent !important; }
+#top section [class~="shadow-[0_0_18px_rgba(64,224,208,.9)]"] { display: none !important; }
+
+/* Process-refinement footer treatment: the existing contact section becomes the reference CTA card. */
+#top > #contact {
+  padding-top: 7rem !important;
+  padding-bottom: 7rem !important;
+}
+#top > #contact > div {
+  position: relative;
+  overflow: hidden;
+  max-width: 1380px !important;
+  padding: 4.5rem 4rem !important;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 2.75rem;
+  background:
+    radial-gradient(circle at 84% 20%, rgba(235,250,255,.34) 0%, transparent 18%),
+    radial-gradient(circle at 14% 86%, rgba(64,224,208,.13) 0%, transparent 30%),
+    linear-gradient(110deg, #050708 0%, #0a1014 52%, #071216 100%);
+  box-shadow: 0 35px 100px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.06);
+}
+#top > #contact > div::after {
+  content: "";
+  position: absolute;
+  top: -10%;
+  right: 4%;
+  width: 20rem;
+  height: 125%;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(230,247,255,.20), transparent 58%);
+  filter: blur(26px);
+}
+#top > #contact > div > .grid { position: relative; z-index: 1; }
+#top > #contact h2 { max-width: 900px; }
+#top > #contact a[href^="mailto:"] {
+  border-color: rgba(255,255,255,.18) !important;
+  background: rgba(255,255,255,.04) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 16px 40px rgba(0,0,0,.18);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+#top > #contact a[href^="mailto:"]:hover {
+  border-color: rgba(64,224,208,.55) !important;
+  background: #40E0D0 !important;
+  color: #061011 !important;
+}
+
+/* Phase 6: turn the CTA into the conclusion of the system, not another section. */
+#top > #contact > div > .grid::before {
+  content: "The next decision / 007";
+  display: block;
+  margin-bottom: -1.25rem;
+  grid-column: 1 / -1;
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: rgba(64,224,208,.72);
+}
+#top > #contact > div > .grid > div:first-child > div:first-child { display: none; }
+#top > #contact > div > .grid > div:first-child > p {
+  max-width: 620px;
+  color: rgba(250,248,245,.46);
+}
+#top > #contact > div > .grid > a[href^="mailto:"] {
+  min-width: 205px;
+  min-height: 44px;
+  justify-content: center;
+  transform: translateY(0);
+}
+#top > #contact > div > .grid > a[href^="mailto:"]:hover { transform: translateY(-2px); box-shadow: 0 18px 45px rgba(0,0,0,.25), 0 0 35px rgba(64,224,208,.12); }
+
+/* The legacy footer lives inside LandingPage; the new Footer component owns the final FAQ/footer. */
+#top > footer { display: none !important; }
+
+#site-footer { isolation: isolate; }
+#site-footer::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(64,224,208,.35), transparent);
+}
+#site-footer #faq button { -webkit-appearance: none; appearance: none; min-height: 44px; }
+#site-footer #faq button:hover .text-white\/75 { color: rgba(255,255,255,.95); }
+
+@media (max-width: 767px) {
+  #top > #contact { padding-top: 4rem !important; padding-bottom: 4rem !important; }
+  #top > #contact > div { padding: 2.25rem 1.35rem !important; border-radius: 1.75rem; }
+  #top > #contact > div::after { right: -35%; width: 18rem; }
+  #top > #contact > div > .grid::before { margin-bottom: -1rem; line-height: 1.35; }
+  #top > #contact > div > .grid > a[href^="mailto:"] { width: 100%; }
+  #site-footer #faq { padding-top: 4rem; padding-bottom: 4rem; }
+  #site-footer #faq button { padding-top: 1rem; padding-bottom: 1rem; }
+  #site-footer #faq button > span:first-child { min-width: 0; }
+  #site-footer #faq button > span:first-child > span:last-child { overflow-wrap: anywhere; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+::-webkit-scrollbar { width: 0px; background: transparent; }
