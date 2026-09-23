@@ -89,7 +89,7 @@ drop policy if exists "authenticated manage settings" on public.site_settings;
 create policy "authenticated manage settings" on public.site_settings for all to authenticated using (true) with check (true);
 
 drop policy if exists "public read content settings" on public.site_settings;
-create policy "public read content settings" on public.site_settings for select to anon, authenticated using (key in ('hero', 'ai_approach', 'contact'));
+create policy "public read content settings" on public.site_settings for select to anon, authenticated using (key in ('hero', 'ai_approach', 'contact', 'work'));
 
 drop policy if exists "public read published projects" on public.projects;
 create policy "public read published projects" on public.projects for select to anon, authenticated using (status = 'PUBLISHED');
@@ -129,6 +129,10 @@ on conflict (key) do nothing;
 
 insert into public.site_settings(key, value)
 values ('contact', '{"eyebrow":"Start a project","titleA":"Let''s build","titleB":"what comes next.","sub":"Have a product, brand or experience in mind? Tell us what you are trying to make. We will take it from there.","studioEmail":"yunusfawzan9@gmail.com"}'::jsonb)
+on conflict (key) do nothing;
+
+insert into public.site_settings(key, value)
+values ('work', '{"items":[{"id":"velora","name":"Velora","category":"Commerce","meta":"01 / Commerce / System","outcome":"A commerce system exploring speed, hierarchy and confident decision-making.","tags":["Direction","UX / UI","Engineering"],"url":"velora.studio","domain":"velora.studio","logoText":"V","fonts":["Cormorant Garamond","Inter"],"colors":["#40E0D0","#FAF8F5","#0A0B0B"],"images":[],"note":"Full case study ships with the system documentation."},{"id":"nimble","name":"Nimble","category":"Brand","meta":"02 / Brand / Experience","outcome":"A brand experience turning a complex offer into a clearer, more confident journey.","tags":["Positioning","Identity","Experience"],"url":"nimble.studio","domain":"nimble.studio","logoText":"N","fonts":["Cormorant Garamond","Inter"],"colors":["#FAF8F5","#40E0D0","#0D1010"],"images":[],"note":"Full case study ships with the identity guidelines."},{"id":"flux","name":"Flux","category":"Product","meta":"03 / Product / Interface","outcome":"A product direction focused on reducing noise and making the next action obvious.","tags":["Product","UX","Interface"],"url":"flux.studio","domain":"flux.studio","logoText":"F","fonts":["Cormorant Garamond","Inter"],"colors":["#0A0B0B","#40E0D0","#FFFFFF"],"images":[],"note":"Full case study ships with the interface system."}]}'::jsonb)
 on conflict (key) do nothing;
 
 alter table public.inquiries add column if not exists stage text not null default '';

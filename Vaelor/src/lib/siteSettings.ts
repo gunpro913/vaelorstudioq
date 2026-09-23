@@ -28,6 +28,24 @@ export type HeroSettings = {
   sub: string;
 };
 
+export type WorkCard = {
+  id: string;
+  name: string;
+  category: string;
+  meta: string;
+  outcome: string;
+  tags: string[];
+  url: string;
+  domain: string;
+  logoText: string;
+  fonts: string[];
+  colors: string[];
+  images: string[];
+  note: string;
+};
+
+export type WorkSettings = { items: WorkCard[] };
+
 export const FALLBACK_EMAIL = 'yunusfawzan9@gmail.com';
 
 export const defaultAi: AiSettings = {
@@ -59,7 +77,57 @@ export const defaultHero: HeroSettings = {
   sub: 'AER × VÆLOR is a digital studio combining strategy, design and engineering to build intelligent products for ambitious brands.',
 };
 
-type SiteSettings = { ai: AiSettings; contact: ContactSettings; hero: HeroSettings };
+export const defaultWork: WorkSettings = {
+  items: [
+    {
+      id: 'velora',
+      name: 'Velora',
+      category: 'Commerce',
+      meta: '01 / Commerce / System',
+      outcome: 'A commerce system exploring speed, hierarchy and confident decision-making.',
+      tags: ['Direction', 'UX / UI', 'Engineering'],
+      url: 'velora.studio',
+      domain: 'velora.studio',
+      logoText: 'V',
+      fonts: ['Cormorant Garamond', 'Inter'],
+      colors: ['#40E0D0', '#FAF8F5', '#0A0B0B'],
+      images: [],
+      note: 'Full case study ships with the system documentation.',
+    },
+    {
+      id: 'nimble',
+      name: 'Nimble',
+      category: 'Brand',
+      meta: '02 / Brand / Experience',
+      outcome: 'A brand experience turning a complex offer into a clearer, more confident journey.',
+      tags: ['Positioning', 'Identity', 'Experience'],
+      url: 'nimble.studio',
+      domain: 'nimble.studio',
+      logoText: 'N',
+      fonts: ['Cormorant Garamond', 'Inter'],
+      colors: ['#FAF8F5', '#40E0D0', '#0D1010'],
+      images: [],
+      note: 'Full case study ships with the identity guidelines.',
+    },
+    {
+      id: 'flux',
+      name: 'Flux',
+      category: 'Product',
+      meta: '03 / Product / Interface',
+      outcome: 'A product direction focused on reducing noise and making the next action obvious.',
+      tags: ['Product', 'UX', 'Interface'],
+      url: 'flux.studio',
+      domain: 'flux.studio',
+      logoText: 'F',
+      fonts: ['Cormorant Garamond', 'Inter'],
+      colors: ['#0A0B0B', '#40E0D0', '#FFFFFF'],
+      images: [],
+      note: 'Full case study ships with the interface system.',
+    },
+  ],
+};
+
+type SiteSettings = { ai: AiSettings; contact: ContactSettings; hero: HeroSettings; work: WorkSettings };
 
 let cache: SiteSettings | null = null;
 let inflight: Promise<SiteSettings> | null = null;
@@ -79,6 +147,35 @@ function sanitizeAi(value: unknown): AiSettings {
       title: card && typeof card.title === 'string' && card.title ? card.title : defaultAi.cards[i].title,
       body: card && typeof card.body === 'string' && card.body ? card.body : defaultAi.cards[i].body,
     })),
+  };
+}
+
+function sanitizeWork(value: unknown): WorkSettings {
+  if (!value || typeof value !== 'object') return defaultWork;
+  const v = value as Partial<WorkSettings>;
+  if (!Array.isArray(v.items) || v.items.length !== 3) return defaultWork;
+  return {
+    items: v.items.map((card, i) => {
+      const fallback = defaultWork.items[i];
+      const c = (card && typeof card === 'object' ? card : {}) as Partial<WorkCard>;
+      const strings = (val: unknown): string[] =>
+        Array.isArray(val) ? val.filter((t): t is string => typeof t === 'string') : [];
+      return {
+        id: typeof c.id === 'string' && c.id ? c.id : fallback.id,
+        name: typeof c.name === 'string' && c.name ? c.name : fallback.name,
+        category: typeof c.category === 'string' && c.category ? c.category : fallback.category,
+        meta: typeof c.meta === 'string' && c.meta ? c.meta : fallback.meta,
+        outcome: typeof c.outcome === 'string' && c.outcome ? c.outcome : fallback.outcome,
+        tags: strings(c.tags).length > 0 ? strings(c.tags) : fallback.tags,
+        url: typeof c.url === 'string' && c.url ? c.url : fallback.url,
+        domain: typeof c.domain === 'string' && c.domain ? c.domain : fallback.domain,
+        logoText: typeof c.logoText === 'string' && c.logoText ? c.logoText : fallback.logoText,
+        fonts: strings(c.fonts).length > 0 ? strings(c.fonts) : fallback.fonts,
+        colors: strings(c.colors).length > 0 ? strings(c.colors) : fallback.colors,
+        images: strings(c.images),
+        note: typeof c.note === 'string' && c.note ? c.note : fallback.note,
+      };
+    }),
   };
 }
 
@@ -110,10 +207,10 @@ export function loadSiteSettings(): Promise<SiteSettings> {
   if (cache) return Promise.resolve(cache);
   if (inflight) return inflight;
   inflight = (async () => {
-    const fallback: SiteSettings = { ai: defaultAi, contact: defaultContact, hero: defaultHero };
+    const fallback: SiteSettings = { ai: defaultAi, contact: defaultContact, hero: defaultHero, work: defaultWork };
     try {
       if (!supabase) return fallback;
-      const { data, error } = await supabase.from('site_settings').select('key, value').in('key', ['hero', 'ai_approach', 'contact']);
+      const { data, error } = await supabase.from('site_settings').select('key, value').in('key', ['hero', 'ai_approach', 'contact', 'work']);
       if (error || !data) return fallback;
       const rows = data as { key: string; value: unknown }[];
       const byKey = new Map(rows.map((row: { key: string; value: unknown }) => [row.key, row.value]));
@@ -121,6 +218,7 @@ export function loadSiteSettings(): Promise<SiteSettings> {
         ai: sanitizeAi(byKey.get('ai_approach')),
         contact: sanitizeContact(byKey.get('contact')),
         hero: sanitizeHero(byKey.get('hero')),
+        work: sanitizeWork(byKey.get('work')),
       };
       cache = next;
       return next;
@@ -134,7 +232,7 @@ export function loadSiteSettings(): Promise<SiteSettings> {
 }
 
 export function useSiteSettings(): SiteSettings {
-  const [settings, setSettings] = useState<SiteSettings>(cache ?? { ai: defaultAi, contact: defaultContact, hero: defaultHero });
+  const [settings, setSettings] = useState<SiteSettings>(cache ?? { ai: defaultAi, contact: defaultContact, hero: defaultHero, work: defaultWork });
   useEffect(() => {
     let active = true;
     void loadSiteSettings().then(next => {

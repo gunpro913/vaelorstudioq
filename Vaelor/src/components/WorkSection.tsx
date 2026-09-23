@@ -1,54 +1,10 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { MaskReveal, SplitWords } from './Kinetic';
+import ProjectDebrief from './ProjectDebrief';
 import { supabase } from '../lib/supabase';
-
-type Category = 'Commerce' | 'Brand' | 'Product';
-
-type WorkItem = {
-  id: string;
-  name: string;
-  category: Category;
-  meta: string;
-  outcome: string;
-  tags: string[];
-  url: string;
-  variant: number;
-};
-
-const items: WorkItem[] = [
-  {
-    id: 'velora',
-    name: 'Velora',
-    category: 'Commerce',
-    meta: '01 / Commerce / System',
-    outcome: 'A commerce system exploring speed, hierarchy and confident decision-making.',
-    tags: ['Direction', 'UX / UI', 'Engineering'],
-    url: 'velora.studio',
-    variant: 0,
-  },
-  {
-    id: 'nimble',
-    name: 'Nimble',
-    category: 'Brand',
-    meta: '02 / Brand / Experience',
-    outcome: 'A brand experience turning a complex offer into a clearer, more confident journey.',
-    tags: ['Positioning', 'Identity', 'Experience'],
-    url: 'nimble.studio',
-    variant: 1,
-  },
-  {
-    id: 'flux',
-    name: 'Flux',
-    category: 'Product',
-    meta: '03 / Product / Interface',
-    outcome: 'A product direction focused on reducing noise and making the next action obvious.',
-    tags: ['Product', 'UX', 'Interface'],
-    url: 'flux.studio',
-    variant: 2,
-  },
-];
+import { useSiteSettings, type WorkCard } from '../lib/siteSettings';
 
 function SectionLabel({ children }: { children: string }) {
   return (
@@ -59,7 +15,7 @@ function SectionLabel({ children }: { children: string }) {
   );
 }
 
-function BrowserVisual({ item }: { item: WorkItem }) {
+function BrowserVisual({ item, variant }: { item: WorkCard; variant: number }) {
   return (
     <div className="relative h-full min-h-[320px] overflow-hidden rounded-[22px] border border-white/10 bg-[#0d1112] shadow-[0_40px_120px_rgba(0,0,0,.55)] md:min-h-[420px]">
       <div className="flex items-center gap-2 border-b border-white/10 bg-black/40 px-4 py-3" aria-hidden="true">
@@ -70,9 +26,9 @@ function BrowserVisual({ item }: { item: WorkItem }) {
           {item.url}
         </span>
       </div>
-      <div className="absolute inset-0 top-[41px] bg-[radial-gradient(circle_at_72%_24%,rgba(235,250,255,.34),transparent_18%),radial-gradient(circle_at_25%_80%,rgba(64,224,208,.16),transparent_30%),linear-gradient(135deg,#050708,#101b20_55%,#070909)]" />
+      <div className="work-visual-bg absolute inset-0 top-[41px] bg-[radial-gradient(circle_at_72%_24%,rgba(235,250,255,.34),transparent_18%),radial-gradient(circle_at_25%_80%,rgba(64,224,208,.16),transparent_30%),linear-gradient(135deg,#050708,#101b20_55%,#070909)]" />
       <div className="absolute inset-8 top-[73px] rounded-[14px] border border-white/10 bg-black/35 shadow-[0_30px_80px_rgba(0,0,0,.55)] backdrop-blur-sm">
-        {item.variant === 0 ? (
+        {variant === 0 ? (
           <div className="flex h-full flex-col justify-end p-6">
             <div className="mb-3 text-[9px] uppercase tracking-[.25em] text-aer-blue">commerce / concept</div>
             <div className="font-editorial text-5xl leading-[.88] text-white/90 md:text-7xl">
@@ -89,11 +45,11 @@ function BrowserVisual({ item }: { item: WorkItem }) {
         ) : (
           <div className="absolute inset-0 p-5">
             <div className="flex justify-between text-[7px] uppercase tracking-[.25em] text-white/40">
-              <span>{item.variant === 1 ? 'NIMBLE / BRAND' : 'FLUX / PRODUCT'}</span>
+              <span>{variant === 1 ? 'NIMBLE / BRAND' : 'FLUX / PRODUCT'}</span>
               <span>CONCEPT</span>
             </div>
             <div className="absolute left-8 right-8 top-1/2 -translate-y-1/2">
-              <div className="font-editorial text-4xl text-white/90">{item.variant === 1 ? 'Make room.' : 'See clearly.'}</div>
+              <div className="font-editorial text-4xl text-white/90">{variant === 1 ? 'Make room.' : 'See clearly.'}</div>
               <div className="mt-5 grid grid-cols-3 gap-2">
                 <span className="h-14 rounded border border-white/10 bg-white/[.03]" />
                 <span className="h-14 rounded border border-aer-blue/30 bg-aer-blue/[.04]" />
@@ -111,6 +67,23 @@ function BrowserVisual({ item }: { item: WorkItem }) {
 export default function WorkSection() {
   const reduceMotion = useReducedMotion();
   const [[active, direction], setActive] = useState<[number, number]>([0, 0]);
+  const { items } = useSiteSettings().work;
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (openIndex === null) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpenIndex(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [openIndex]);
+  // ponytail: coverflow poses tuned for 3 items; more items stack on the left pose
 
   const track = useCallback(() => {
     if (supabase) void supabase.from('analytics_events').insert({ event_name: 'project_view', path: '#work' });
@@ -186,16 +159,21 @@ export default function WorkSection() {
           return (
             <motion.div
               key={entry.id}
+              data-slot={entry.id}
               className={`absolute inset-y-0 left-0 right-0 mx-auto w-[min(640px,88%)] ${isCenter ? '' : 'cursor-pointer'}`}
               initial={false}
               animate={pose(offset)}
               transition={spring}
               onClick={() => {
                 if (!isCenter) select(i);
+                else {
+                  track();
+                  setOpenIndex(i);
+                }
               }}
               aria-hidden={!isCenter}
             >
-              <BrowserVisual item={entry} />
+              <BrowserVisual item={entry} variant={i % 3} />
             </motion.div>
           );
         })}
@@ -291,6 +269,12 @@ export default function WorkSection() {
           Discuss your project <ArrowRight size={13} aria-hidden="true" />
         </a>
       </motion.div>
+
+      <AnimatePresence>
+        {openIndex !== null && items[openIndex] && (
+          <ProjectDebrief key={items[openIndex].id} card={items[openIndex]} onClose={() => setOpenIndex(null)} />
+        )}
+      </AnimatePresence>
     </section>
   );
 }
